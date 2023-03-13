@@ -44,10 +44,14 @@ public class Node {
     }
 
     String GetData(String dataId){
-        for (int i = 0; i < DataIndex.size(); i++) {
-            if(dataId.equals(DataIndex.get(i))){
-                return Data.get(i);
+        if(DataIndex.contains(dataId)) {
+            for (int i = 0; i < DataIndex.size(); i++) {
+                if (dataId.equals(DataIndex.get(i))) {
+                    return Data.get(i);
+                }
             }
+        }else{
+            return null;
         }
         return null;
     }

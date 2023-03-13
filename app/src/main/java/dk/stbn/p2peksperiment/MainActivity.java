@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     List<String> commandList = Arrays.asList(str.split(";"));
                                     response = node.newNeighbor(Arrays.asList(commandList.get(1).split(",")), commandList.get(2)).toString();
                                 } else if (str.startsWith("GetPhonebookLeft")) {
-                                    //run with GetPhonebookRight
+                                    //run with GetPhonebookLeft
                                     response = node.GetPhonebookLeft().toString();
                                 } else if (str.startsWith("GetPhonebookRight")) {
                                     //run with GetPhonebookRight
@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 outNodeStream.writeUTF(response);
                                 outNodeStream.flush();
                                 waitABit();
-                                System.out.println("her");
                                 serverCarryOn = false;
                             } catch (Exception e) {
                                 e.printStackTrace();
