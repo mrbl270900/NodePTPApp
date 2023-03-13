@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -112,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (!clientStarted) {
                 //her should bed logic for making a new node in chain
                 clientStarted = true;
+                command = HandleApi.createHttpRequest("Get", "getId", "empty");
+                System.out.println(command);
                 clientThread.start();
                 clientinfo += "- - - CLIENT STARTED - - - \n";
                 startClient.setText("Resend");
@@ -119,7 +123,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(!ipInputField.getText().toString().equals(REMOTE_IP_ADDRESS)) {
                     command = ipInputField.getText().toString();
                 }else{
-                    command = "getId";
+                    command = HandleApi.createHttpRequest("Get", "getId", "empty");
+                    System.out.println(command);
                 }
                 Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();
@@ -159,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         while (serverCarryOn) {
                             try {
                                 str = (String) inNodeStream.readUTF();
+                                Request input = HandleApi.readHttp(str);
                                 sUpdate("Client says: " + str);
                                 System.out.println("client to server " + str);
                                 //logic to handle things
@@ -252,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 DataInputStream inClientStream = new DataInputStream(connectionToServer.getInputStream());
                 DataOutputStream outClientStream = new DataOutputStream(connectionToServer.getOutputStream());
                 String messageFromServer;
-
                 outClientStream.writeUTF(command);
                 outClientStream.flush();
                 cUpdate("I said:      " + command);

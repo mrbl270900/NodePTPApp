@@ -16,8 +16,6 @@ public class Node {
         Id = ip;
         NodesLeft = nodesLeft;
         NodesRight = nodesRight;
-
-
     }
 
 
@@ -51,7 +49,7 @@ public class Node {
                 }
             }
         }else{
-            return null;
+            return null; //TODO logic for sending get data to a new node left or right
         }
         return null;
     }
@@ -60,6 +58,7 @@ public class Node {
         for (int i = 0; i < DataIndex.size(); i++) {
             if(dataId.equals(DataIndex.get(i))){
                 Data.remove(i);
+                DataIndex.remove(i);
                 break;
             }
         }
@@ -67,7 +66,10 @@ public class Node {
 
     String AddData(String newData){
         Data.add(newData);
-        return "datas index"; //TODO figur way to make this
+        //String hashedNewData = hash(newdata)
+        DataIndex.add(newData);//this should be hashedNewData
+        return "datas index"; //should return hashedNewData
+        //TODO fix with hash
     }
 
 }
