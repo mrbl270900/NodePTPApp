@@ -143,10 +143,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             boolean running = true;
             while(true){
                 try {
-                    ServerSocket serverSocket = new ServerSocket(4444);
-                    sUpdate("SERVER: start listening..");
             while (running) {
                     try {
+                        ServerSocket serverSocket = new ServerSocket(4444);
+                        sUpdate("SERVER: start listening..");
                         Socket nodeSocket = serverSocket.accept();
                         sUpdate("SERVER connection accepted");
 
@@ -154,12 +154,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         DataOutputStream outNodeStream = new DataOutputStream(nodeSocket.getOutputStream());
                         String str;
                         String response;
+                        serverCarryOn = true;
                         //Start conversation
                         while (serverCarryOn) {
                             try {
                                 str = (String) inNodeStream.readUTF();
                                 sUpdate("Client says: " + str);
-
+                                System.out.println("client to server " + str);
                                 //logic to handle things
                                 if (str.equals("getId")) {
                                     //run with getId
@@ -209,13 +210,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         sUpdate("SERVER: outputstream closed");
                         nodeSocket.close();
                         sUpdate("SERVER: Client socket closed");
+                        serverSocket.close();
+                        sUpdate("SERVER: Server socket closed");
                     } catch (IOException e) {
                         sUpdate("oops!!");
                         throw new RuntimeException(e);
                     }
                 }//running loop
-                    serverSocket.close();
-                    sUpdate("SERVER: Server socket closed");
             }catch (Exception e){
                     running = false;
                 }
