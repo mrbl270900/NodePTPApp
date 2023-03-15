@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }//onclick
 
-    class MyServerThread implements Runnable {
+    class MyServerThread implements Runnable { //TODO implemnt multi thread for server
         @SuppressLint("SuspiciousIndentation")
         @Override
         public void run() {
