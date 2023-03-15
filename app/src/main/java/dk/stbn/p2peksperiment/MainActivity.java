@@ -121,7 +121,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startClient.setText("Resend");
             }else{
                 if(!ipInputField.getText().toString().equals(REMOTE_IP_ADDRESS)) {
-                    command = ipInputField.getText().toString();
+                    String newCommand = ipInputField.getText().toString();
+                    String[] newCommandList = newCommand.split(",");
+                    command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1], newCommandList[2]);
                 }else{
                     command = HandleApi.createHttpRequest("Get", "getId", "empty");
                     System.out.println(command);
@@ -159,47 +161,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         DataOutputStream outNodeStream = new DataOutputStream(nodeSocket.getOutputStream());
                         String str;
                         String response;
+                        String status = "200 ok";
                         serverCarryOn = true;
                         //Start conversation
                         while (serverCarryOn) {
                             try {
                                 str = (String) inNodeStream.readUTF();
-                                Request input = HandleApi.readHttp(str);
-                                sUpdate("Client says: " + str);
-                                System.out.println("client to server " + str);
-                                //logic to handle things
-                                if (str.equals("getId")) {
-                                    //run with getId
-                                    response = node.getId();
-                                } else if (str.startsWith("newNeighbor")) {
-                                    //run with newNeighbor;id1,id2,id3;left
-                                    List<String> commandList = Arrays.asList(str.split(";"));
-                                    response = node.newNeighbor(Arrays.asList(commandList.get(1).split(",")), commandList.get(2)).toString();
-                                } else if (str.startsWith("GetPhonebookLeft")) {
-                                    //run with GetPhonebookLeft
-                                    response = node.GetPhonebookLeft().toString();
-                                } else if (str.startsWith("GetPhonebookRight")) {
-                                    //run with GetPhonebookRight
-                                    response = node.GetPhonebookRight().toString();
-                                } else if (str.startsWith("GetData")) {
-                                    //run with GetData;dataId
-                                    List<String> commandList = Arrays.asList(str.split(";"));
-                                    response = node.GetData(commandList.get(1));
-                                } else if (str.startsWith("RemoveData")) {
-                                    //run with RemoveData;dataId
-                                    List<String> commandList = Arrays.asList(str.split(";"));
-                                    node.RemoveData(commandList.get(1));
-                                    response = "Data Removed";
-                                } else if (str.startsWith("AddData")) {
-                                    //run like AddData;{some json data can not have ;}
-                                    List<String> commandList = Arrays.asList(str.split(";"));
-                                    response = node.AddData(commandList.get(1));
-                                } else {
+                                try{
+                                    Request input = HandleApi.readHttpRequest(str);
+
+                                    sUpdate("Client says: " + str);
+                                    System.out.println("client to server " + str);
+                                    //logic to handle things
+                                    if (input.path.equals("getId")) {
+                                        //run with getId
+                                        response = node.getId();
+                                        status = "200 ok";
+                                    } else if (input.path.equals("newNeighbor")) {
+                                        //run with newNeighbor;id1,id2,id3;left
+                                        List<String> commandList = Arrays.asList(str.split(";"));
+                                        status = "200 ok";
+                                        response = node.newNeighbor(Arrays.asList(commandList.get(1).split(",")), commandList.get(2)).toString();
+                                    } else if (input.path.equals("GetPhonebookLeft")) {
+                                        //run with GetPhonebookLeft
+                                        response = node.GetPhonebookLeft().toString();
+                                    } else if (input.path.equals("GetPhonebookRight")) {
+                                        //run with GetPhonebookRight
+                                        status = "200 ok";
+                                        response = node.GetPhonebookRight().toString();
+                                    } else if (input.path.equals("GetData")) {
+                                        //run with GetData;dataId
+                                        status = "200 ok";
+                                        List<String> commandList = Arrays.asList(str.split(";"));
+                                        response = node.GetData(commandList.get(1));
+                                    } else if (input.path.equals("RemoveData")) {
+                                        //run with RemoveData;dataId
+                                        status = "200 ok";
+                                        List<String> commandList = Arrays.asList(str.split(";"));
+                                        node.RemoveData(commandList.get(1));
+                                        response = "Data Removed";
+                                    } else if (input.path.equals("AddData")) {
+                                        //run like AddData;{some json data can not have ;}
+                                        status = "200 ok";
+                                        List<String> commandList = Arrays.asList(str.split(";"));
+                                        response = node.AddData(commandList.get(1));
+                                    } else {
+                                        status = "400 bad rec";
+                                        response = "Fail";
+                                    }
+                                }catch (RuntimeException e){
+                                    status = "400 bad rec";
                                     response = "Fail";
                                 }
 
-                                sUpdate(response);
-                                outNodeStream.writeUTF(response);
+                                String jsonString = HandleApi.createHttpResponse(response, status);
+                                sUpdate(jsonString);
+                                outNodeStream.writeUTF(jsonString);
                                 outNodeStream.flush();
                                 waitABit();
                                 serverCarryOn = false;
@@ -262,7 +279,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 outClientStream.flush();
                 cUpdate("I said:      " + command);
                 messageFromServer = inClientStream.readUTF();
-                cUpdate("Server says: " + messageFromServer);
+                Response response = HandleApi.readHttpResponse(messageFromServer);
+                cUpdate("Server says: " + response);
                 waitABit();
                 connectionToServer.shutdownInput();
                 cUpdate("CLIENT: closed inputstream");

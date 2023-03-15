@@ -2,83 +2,67 @@ package dk.stbn.p2peksperiment;
 import org.json.*;
 public class HandleApi {
 
-    public static Request readHttp(String input){
+    public static Request readHttpRequest(String input) throws RuntimeException{
         try {
-            JSONObject obj = new JSONObject(input);
+            JSONObject json = new JSONObject(input);
             Request request = new Request();
-            request.header = obj.getJSONObject("Request").getString("Header");
-            request.method = obj.getJSONObject("Request").getString("Method");
-            request.path = obj.getJSONObject("Request").getString("Path");
-            request.body = obj.getJSONObject("Request").getString("Body");
+            request.method = json.getString("method");
+            request.path = json.getString("path");
+            request.body = json.getString("body");
             return request;
-            /*
-            Request: {
-            Header: HTTP/1.1
-            Method: Post / Get / Put / Delete
-            Path: (e.g. GetID)
-                Body: {
-                    ... the json body, if needed
-                }
-            }
-            */
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
-    public static String createHttpRequest(String method, String path, String body){
+    public static String createHttpRequest(String method, String path, String body) throws RuntimeException{
         try {
+            JSONObject json = new JSONObject();
             Request request = new Request();
-            request.header = "HTTP/1.1";
             request.method = method;
             request.path = path;
             request.body = body;
-            return "{\"Request\": { \"Header\": \"" + request.header + "\" \"Method\": \""+ request.method +
-                    "\" \"Path\": \"" + request.path + "\" \"Body\": { \"" + request.body + "\" } }";
-            /*
-            Request: {
-            Header: HTTP/1.1
-            Method: Post / Get / Put / Delete
-            Path: (e.g. GetID)
-                Body: {
-                    ... the json body, if needed
-                }
-            }
-            */
+            json.put("header", "HTTP/1.1");
+            json.put("path", request.path);
+            json.put("method", request.method);
+            json.put("body", request.body);
 
-        } catch (RuntimeException e) {
+            return json.toString();
+
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
 
-    public static JSONObject createHttpResponse(String body, String status){
+    public static String createHttpResponse(String body, String status) throws RuntimeException{
         Response response = new Response();
-        response.header = "HTTP/1.1";
         response.status = status;
         response.body = body;
 
         try {
-            JSONObject obj = new JSONObject(response.toString());
-            return obj;
+            JSONObject json = new JSONObject();
+            json.put("header", "HTTP/1.1");
+            json.put("status", response.status);
+            json.put("body", response.body);
+            return json.toString();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
-    /*
-    Response: {
-        Header: HTTP/1.1
-        Status: 200 OK / 400 Bad Request / 404 Not Found
-        Body : {
-        ... the json body, if needed
-        }
     }
-    */
+
+    public static Response readHttpResponse(String input) throws RuntimeException{
+        try {
+            JSONObject json = new JSONObject(input);
+            Response response = new Response();
+            response.status = json.getString("status");
+            response.body = json.getString("body");
+            return response;
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
