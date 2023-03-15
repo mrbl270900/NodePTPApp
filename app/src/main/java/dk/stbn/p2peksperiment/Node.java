@@ -1,75 +1,78 @@
 package dk.stbn.p2peksperiment;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Node {
     List<String> NodesLeft;
     List<String> NodesRight;
-
+    SHA256 hash = new SHA256();
     String Id;
+    HashMap<String, String> Data = new HashMap<>();
+    HashMap<String, String> DatasOwner = new HashMap<>();
 
-    List<String> DataIndex;
-    List<String> Data;
-
-
-    Node(String ip, List<String> nodesLeft, List<String> nodesRight){
+    Node(String ip, List<String> nodesLeft, List<String> nodesRight) {
         Id = ip;
         NodesLeft = nodesLeft;
         NodesRight = nodesRight;
     }
 
 
-    String getId(){
+    String getId() {
         return Id;
     }
 
-    List<String> newNeighbor(List<String> newNeighborIds, String side){
-        if(side.equals("left")){
+    List<String> newNeighbor(List<String> newNeighborIds, String side) {
+        if (side.equalsIgnoreCase("left")) {
+            NodesLeft.clear();
             NodesLeft.addAll(newNeighborIds);
             return NodesLeft;
-        }else{
+        } else {
+            NodesRight.clear();
             NodesRight.addAll(newNeighborIds);
             return NodesRight;
         }
     }
 
-    List<String> GetPhonebookLeft(){
+    List<String> GetPhonebookLeft() {
         return NodesLeft; //returns nodes left or right;
     }
 
-    List<String> GetPhonebookRight(){
+    List<String> GetPhonebookRight() {
         return NodesRight; //returns nodes left or right;
     }
 
-    String GetData(String dataId){
-        if(DataIndex.contains(dataId)) {
-            for (int i = 0; i < DataIndex.size(); i++) {
-                if (dataId.equals(DataIndex.get(i))) {
-                    return Data.get(i);
-                }
+    String GetData(String dataId) {
+        try {
+            if (Data.containsKey(dataId)) {
+                return Data.get(dataId);
+            } else {
+                return null;
             }
-        }else{
-            return null; //TODO logic for sending get data to a new node left or right
-        }
-        return null;
-    }
-
-    void RemoveData(String dataId){
-        for (int i = 0; i < DataIndex.size(); i++) {
-            if(dataId.equals(DataIndex.get(i))){
-                Data.remove(i);
-                DataIndex.remove(i);
-                break;
-            }
+        }catch (RuntimeException e){
+            System.out.println(dataId);
+            return null;
         }
     }
 
-    String AddData(String newData){
-        Data.add(newData);
-        //String hashedNewData = hash(newdata)
-        DataIndex.add(newData);//this should be hashedNewData
-        return "datas index"; //should return hashedNewData
-        //TODO fix with hash
+    String RemoveData(String dataId) {
+        if (Data.containsKey(dataId)) {
+            DatasOwner.remove(dataId);
+            return Data.remove(dataId);
+        } else {
+            return null;
+        }
     }
 
+    String AddData(String newData, String ownerIp) {
+            String hashedData = hash.hash(newData);
+            DatasOwner.put(ownerIp ,hashedData);
+            Data.put(hashedData, newData);
+            return hashedData;
+    }
+    String AddData(String newData) {
+        String hashedData = hash.hash(newData);
+        Data.put(hashedData, newData);
+        return hashedData;
+    }
 }
