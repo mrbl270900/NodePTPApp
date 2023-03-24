@@ -266,28 +266,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 data.body = data.body.replace(" ", "");
                                 String[] dataSplit = data.body.split(",");
                                 if(dataSplit[0].equals(dataSplit[1])){
+                                    //case 2
                                     ArrayList<String> case1 = new ArrayList<>();
                                     case1.add(nodeIp);
                                     case1.add(THIS_IP_ADDRESS);
                                     case1.add(nodeIp);
                                     node.newNeighbor(case1, "left");
                                     String leftList = THIS_IP_ADDRESS + ","+ nodeIp + "," + THIS_IP_ADDRESS;
-                                    nodeCommand = HandleApi.createHttpRequest("Get", "GetPhonebookRight", "tom");
-                                    Thread nodeThread2 = new Thread(new MyNodeThread());
-                                    nodeThread2.start();
-                                    waitABit();
-                                    waitABit();
-                                    waitABit();
-                                    data = HandleApi.readHttpResponse(dataFromOtherNode);
-                                    data.body = data.body.replace("[", "");
-                                    data.body = data.body.replace("]", "");
-                                    data.body = data.body.replace(" ", "");
-                                    dataSplit = data.body.split(",");
-                                    ArrayList<String> newListRight = new ArrayList<>();
-                                    newListRight.add(nodeIp);
-                                    newListRight.add(THIS_IP_ADDRESS);
-                                    newListRight.add(nodeIp);
-                                    node.newNeighbor(newListRight, "right");
+                                    node.newNeighbor(case1, "right");
                                     nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",left");
                                     Thread nodeThread3 = new Thread(new MyNodeThread());
                                     nodeThread3.start();
@@ -304,23 +290,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     waitABit();
                                     waitABit();
                                 }else if(dataSplit[0].equals(dataSplit[2])){
+                                    //case 3
                                     ArrayList<String> case2 = new ArrayList<>();
                                     case2.add(nodeIp);
                                     case2.add(dataSplit[0]);
                                     case2.add(THIS_IP_ADDRESS);
                                     node.newNeighbor(case2, "left");
-                                    String leftList = THIS_IP_ADDRESS + ","+ dataSplit[0] + "," + nodeIp;
-                                    nodeCommand = HandleApi.createHttpRequest("Get", "GetPhonebookRight", "tom");
-                                    Thread nodeThread2 = new Thread(new MyNodeThread());
-                                    nodeThread2.start();
-                                    waitABit();
-                                    waitABit();
-                                    waitABit();
-                                    data = HandleApi.readHttpResponse(dataFromOtherNode);
-                                    data.body = data.body.replace("[", "");
-                                    data.body = data.body.replace("]", "");
-                                    data.body = data.body.replace(" ", "");
-                                    dataSplit = data.body.split(",");
+                                    String leftList = dataSplit[0] + "," + THIS_IP_ADDRESS + "," + nodeIp;
                                     ArrayList<String> newListRight = new ArrayList<>();
                                     newListRight.add(dataSplit[0]);
                                     newListRight.add(nodeIp);
@@ -333,16 +309,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     waitABit();
                                     waitABit();
 
-                                    //handle 2nd neighbor
-                                    nodeIp = dataSplit[0];
-                                    String rightList = THIS_IP_ADDRESS + ","+ dataSplit[1] + "," + nodeIp;
+                                    String rightList = THIS_IP_ADDRESS + "," + dataSplit[0] + "," + nodeIp;
                                     nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
                                     Thread nodeThread4 = new Thread(new MyNodeThread());
                                     nodeThread4.start();
                                     waitABit();
                                     waitABit();
                                     waitABit();
+
+                                    //handle 2nd neighbor
+                                    nodeIp = dataSplit[0];
+                                    String rightList2 = dataSplit[1] + ","+ THIS_IP_ADDRESS + "," + nodeIp;
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
+                                    Thread nodeThread5 = new Thread(new MyNodeThread());
+                                    nodeThread5.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+                                    String leftList2 = THIS_IP_ADDRESS + ","+ dataSplit[1] + "," + nodeIp;
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList2 + ",left");
+                                    Thread nodeThread6 = new Thread(new MyNodeThread());
+                                    nodeThread6.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+
+                                }else if(nodeIp.equals(dataSplit[2])){
+                                    //case 4
+                                    ArrayList<String> case2 = new ArrayList<>();
+                                    case2.add(nodeIp);
+                                    case2.add(dataSplit[0]);
+                                    case2.add(dataSplit[1]);
+                                    node.newNeighbor(case2, "left");
+                                    String leftList = dataSplit[0] + "," + dataSplit[1] + "," + THIS_IP_ADDRESS;
+                                    ArrayList<String> newListRight = new ArrayList<>();
+                                    newListRight.add(dataSplit[1]);
+                                    newListRight.add(dataSplit[0]);
+                                    newListRight.add(nodeIp);
+                                    node.newNeighbor(newListRight, "right");
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",left");
+                                    Thread nodeThread3 = new Thread(new MyNodeThread());
+                                    nodeThread3.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+                                    String rightList = THIS_IP_ADDRESS + "," + dataSplit[1] + "," + dataSplit[0];
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
+                                    Thread nodeThread4 = new Thread(new MyNodeThread());
+                                    nodeThread4.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+                                    //handle 2nd neighbor
+                                    nodeIp = dataSplit[0];
+                                    String rightList2 = dataSplit[2] + ","+ THIS_IP_ADDRESS + "," + dataSplit[1];
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
+                                    Thread nodeThread5 = new Thread(new MyNodeThread());
+                                    nodeThread5.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+                                    String leftList2 = dataSplit[1] + ","+ THIS_IP_ADDRESS + "," + dataSplit[2];
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList2 + ",left");
+                                    Thread nodeThread6 = new Thread(new MyNodeThread());
+                                    nodeThread6.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+                                    nodeIp = dataSplit[1];
+                                    String rightList3 = dataSplit[0] + ","+ dataSplit[2] + "," + THIS_IP_ADDRESS;
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList3 + ",right");
+                                    Thread nodeThread7 = new Thread(new MyNodeThread());
+                                    nodeThread7.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
+                                    String leftList3 = THIS_IP_ADDRESS + ","+ dataSplit[2] + "," + dataSplit[0];
+                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList3 + ",left");
+                                    Thread nodeThread8 = new Thread(new MyNodeThread());
+                                    nodeThread8.start();
+                                    waitABit();
+                                    waitABit();
+                                    waitABit();
+
                                 }else{
+                                    //after case 4 we need other side of phone book
                                     nodeCommand = HandleApi.createHttpRequest("Get", "GetPhonebookRight", "tom");
                                     Thread nodeThread2 = new Thread(new MyNodeThread());
                                     nodeThread2.start();
@@ -355,7 +413,87 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     data.body = data.body.replace(" ", "");
                                     String[] dataSplit2 = data.body.split(",");
                                     if(dataSplit[0].equals(dataSplit2[2])){
-                                        //case 4
+                                        //case 5
+                                        ArrayList<String> case4 = new ArrayList<>();
+                                        case4.add(nodeIp);
+                                        case4.add(dataSplit[0]);
+                                        case4.add(dataSplit[1]);
+                                        node.newNeighbor(case4, "left");
+                                        ArrayList<String> case5 = new ArrayList<>();
+                                        case5.add(dataSplit[2]);
+                                        case5.add(dataSplit[1]);
+                                        case5.add(dataSplit[0]);
+                                        node.newNeighbor(case5, "right");
+
+                                        //handle neighbor
+                                        String rightList = THIS_IP_ADDRESS + ","+ dataSplit[2] + "," + dataSplit[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
+                                        Thread nodeThread3 = new Thread(new MyNodeThread());
+                                        nodeThread3.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        String oldIp = nodeIp;
+                                        nodeIp = dataSplit[0];
+                                        String leftList = dataSplit[1] + ","+ dataSplit[2] + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",left");
+                                        Thread nodeThread4 = new Thread(new MyNodeThread());
+                                        nodeThread4.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList2 = oldIp + ","+ THIS_IP_ADDRESS + "," + dataSplit[2];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
+                                        Thread nodeThread5 = new Thread(new MyNodeThread());
+                                        nodeThread5.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[1];
+                                        String leftList3 = dataSplit[2] + ","+ THIS_IP_ADDRESS + "," + oldIp;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList3 + ",left");
+                                        Thread nodeThread6 = new Thread(new MyNodeThread());
+                                        nodeThread6.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList3 = dataSplit[0] + ","+ oldIp + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList3 + ",right");
+                                        Thread nodeThread7 = new Thread(new MyNodeThread());
+                                        nodeThread7.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[2];
+                                        String leftList4 = THIS_IP_ADDRESS + ","+ oldIp + "," + dataSplit[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList4 + ",left");
+                                        Thread nodeThread8 = new Thread(new MyNodeThread());
+                                        nodeThread8.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList4 = dataSplit[1] + ","+ dataSplit[0] + "," + oldIp;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList4 + ",right");
+                                        Thread nodeThread9 = new Thread(new MyNodeThread());
+                                        nodeThread9.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                    }else if(dataSplit[1].equals(dataSplit2[2])){
+                                        //case 6
                                         ArrayList<String> case4 = new ArrayList<>();
                                         case4.add(nodeIp);
                                         case4.add(dataSplit[0]);
@@ -363,98 +501,287 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         node.newNeighbor(case4, "left");
                                         ArrayList<String> case5 = new ArrayList<>();
                                         case5.add(dataSplit2[0]);
-                                        case5.add(dataSplit[1]);
-                                        case5.add(dataSplit[2]);
+                                        case5.add(dataSplit2[1]);
+                                        case5.add(dataSplit2[2]);
                                         node.newNeighbor(case5, "right");
 
-                                        //set niebers niebers
-                                        String leftList = THIS_IP_ADDRESS + ","+ node.NodesRight.get(0) + "," + node.NodesRight.get(1);
-                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",right");
+                                        //handle neighbor
+                                        String rightList = THIS_IP_ADDRESS + ","+ dataSplit2[0] + "," + dataSplit2[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
                                         Thread nodeThread3 = new Thread(new MyNodeThread());
                                         nodeThread3.start();
                                         waitABit();
                                         waitABit();
                                         waitABit();
 
-                                        //handle 2nd neighbor
-                                        nodeIp = node.NodesRight.get(0);
-                                        String rightList = THIS_IP_ADDRESS + ","+ node.NodesLeft.get(0) + "," + node.NodesLeft.get(1);
-                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",left");
+                                        //set niebers niebers
+                                        String oldIp = nodeIp;
+                                        nodeIp = dataSplit[0];
+                                        String leftList = dataSplit2[2] + ","+ dataSplit2[1] + "," + dataSplit2[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",left");
                                         Thread nodeThread4 = new Thread(new MyNodeThread());
                                         nodeThread4.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList2 = oldIp + ","+ THIS_IP_ADDRESS + "," + dataSplit2[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
+                                        Thread nodeThread5 = new Thread(new MyNodeThread());
+                                        nodeThread5.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[1];
+                                        String leftList3 = dataSplit2[0] + ","+ dataSplit2[1] + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList3 + ",left");
+                                        Thread nodeThread6 = new Thread(new MyNodeThread());
+                                        nodeThread6.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList3 = dataSplit[0] + ","+ oldIp + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList3 + ",right");
+                                        Thread nodeThread7 = new Thread(new MyNodeThread());
+                                        nodeThread7.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[2];
+                                        String leftList4 = dataSplit2[0] + ","+ THIS_IP_ADDRESS + "," + oldIp;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList4 + ",left");
+                                        Thread nodeThread8 = new Thread(new MyNodeThread());
+                                        nodeThread8.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList4 = dataSplit[1] + ","+ dataSplit[0] + "," + oldIp;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList4 + ",right");
+                                        Thread nodeThread9 = new Thread(new MyNodeThread());
+                                        nodeThread9.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit2[0];
+                                        String leftList5 = THIS_IP_ADDRESS + ","+ oldIp + "," + dataSplit[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList5 + ",left");
+                                        Thread nodeThread10 = new Thread(new MyNodeThread());
+                                        nodeThread10.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList5 = dataSplit2[1] + ","+ dataSplit2[2] + "," + dataSplit[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList5 + ",right");
+                                        Thread nodeThread11 = new Thread(new MyNodeThread());
+                                        nodeThread11.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                    }else if(dataSplit[2].equals(dataSplit2[2])){
+                                        //case 7
+                                        ArrayList<String> case4 = new ArrayList<>();
+                                        case4.add(nodeIp);
+                                        case4.add(dataSplit[0]);
+                                        case4.add(dataSplit[1]);
+                                        node.newNeighbor(case4, "left");
+                                        ArrayList<String> case5 = new ArrayList<>();
+                                        case5.add(dataSplit2[0]);
+                                        case5.add(dataSplit2[1]);
+                                        case5.add(dataSplit2[2]);
+                                        node.newNeighbor(case5, "right");
+
+                                        //handle neighbor
+                                        String rightList = THIS_IP_ADDRESS + ","+ dataSplit2[0] + "," + dataSplit2[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
+                                        Thread nodeThread3 = new Thread(new MyNodeThread());
+                                        nodeThread3.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        String oldIp = nodeIp;
+                                        nodeIp = dataSplit[0];
+                                        String rightList2 = oldIp + ","+ THIS_IP_ADDRESS + "," + dataSplit2[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
+                                        Thread nodeThread5 = new Thread(new MyNodeThread());
+                                        nodeThread5.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[1];
+                                        String rightList3 = dataSplit[0] + ","+ oldIp + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList3 + ",right");
+                                        Thread nodeThread7 = new Thread(new MyNodeThread());
+                                        nodeThread7.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[2];
+                                        String leftList4 = dataSplit2[1] + ","+ dataSplit2[0] + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList4 + ",left");
+                                        Thread nodeThread8 = new Thread(new MyNodeThread());
+                                        nodeThread8.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit2[1];
+                                        String leftList5 = dataSplit2[0] + ","+ THIS_IP_ADDRESS + "," + oldIp;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList5 + ",left");
+                                        Thread nodeThread10 = new Thread(new MyNodeThread());
+                                        nodeThread10.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit2[0];
+                                        String leftList6 = THIS_IP_ADDRESS + ","+ oldIp + "," + dataSplit[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList6 + ",left");
+                                        Thread nodeThread12 = new Thread(new MyNodeThread());
+                                        nodeThread12.start();
                                         waitABit();
                                         waitABit();
                                         waitABit();
 
                                     }else{
-                                        //efter 4 nodes
-                                        String leftList = THIS_IP_ADDRESS + ","+ dataSplit[0] + "," + dataSplit[1];
-                                        ArrayList<String> newListRight = new ArrayList<>();
-                                        newListRight.add(nodeIp);
-                                        newListRight.add(dataSplit2[0]);
-                                        newListRight.add(dataSplit2[1]);
-                                        node.newNeighbor(newListRight, "right");
-                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",left");
+                                        ArrayList<String> case4 = new ArrayList<>();
+                                        case4.add(nodeIp);
+                                        case4.add(dataSplit[0]);
+                                        case4.add(dataSplit[1]);
+                                        node.newNeighbor(case4, "left");
+                                        ArrayList<String> case5 = new ArrayList<>();
+                                        case5.add(dataSplit2[0]);
+                                        case5.add(dataSplit2[1]);
+                                        case5.add(dataSplit2[2]);
+                                        node.newNeighbor(case5, "right");
+
+                                        //handle neighbor
+                                        String rightList = THIS_IP_ADDRESS + ","+ dataSplit2[0] + "," + dataSplit2[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
                                         Thread nodeThread3 = new Thread(new MyNodeThread());
                                         nodeThread3.start();
                                         waitABit();
                                         waitABit();
                                         waitABit();
 
-                                        //handle 2nd neighbor
-                                        nodeIp = node.NodesLeft.get(0);
-                                        String rightList = THIS_IP_ADDRESS + ","+ node.NodesRight.get(0) + "," + node.NodesRight.get(1);
-                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList + ",right");
+                                        //set niebers niebers
+                                        String oldIp = nodeIp;
+                                        nodeIp = dataSplit[0];
+                                        String leftList = dataSplit[1] + ","+ dataSplit[2] + "," + dataSplit2[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList + ",left");
                                         Thread nodeThread4 = new Thread(new MyNodeThread());
                                         nodeThread4.start();
                                         waitABit();
                                         waitABit();
                                         waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList2 = oldIp + ","+ THIS_IP_ADDRESS + "," + dataSplit2[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
+                                        Thread nodeThread5 = new Thread(new MyNodeThread());
+                                        nodeThread5.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[1];
+                                        String leftList3 = dataSplit2[0] + ","+ dataSplit2[1] + "," + dataSplit2[2];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList3 + ",left");
+                                        Thread nodeThread6 = new Thread(new MyNodeThread());
+                                        nodeThread6.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList3 = dataSplit[0] + ","+ oldIp + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList3 + ",right");
+                                        Thread nodeThread7 = new Thread(new MyNodeThread());
+                                        nodeThread7.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit[2];
+                                        String leftList4 = dataSplit2[1] + ","+ dataSplit2[0] + "," + THIS_IP_ADDRESS;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList4 + ",left");
+                                        Thread nodeThread8 = new Thread(new MyNodeThread());
+                                        nodeThread8.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList4 = dataSplit[1] + ","+ dataSplit[0] + "," + oldIp;
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList4 + ",right");
+                                        Thread nodeThread9 = new Thread(new MyNodeThread());
+                                        nodeThread9.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit2[1];
+                                        String leftList5 = dataSplit2[2] + ","+ dataSplit[1] + "," + dataSplit[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList5 + ",left");
+                                        Thread nodeThread10 = new Thread(new MyNodeThread());
+                                        nodeThread10.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList5 = dataSplit2[2] + ","+ dataSplit[1] + "," + dataSplit[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList5 + ",right");
+                                        Thread nodeThread11 = new Thread(new MyNodeThread());
+                                        nodeThread11.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //set niebers niebers
+                                        nodeIp = dataSplit2[0];
+                                        String leftList6 = THIS_IP_ADDRESS + ","+ oldIp + "," + dataSplit[0];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList6 + ",left");
+                                        Thread nodeThread12 = new Thread(new MyNodeThread());
+                                        nodeThread12.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
+
+                                        //handle 2nd neighbor
+                                        String rightList6 = dataSplit2[1] + ","+ dataSplit2[2] + "," + dataSplit[1];
+                                        nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList6 + ",right");
+                                        Thread nodeThread13 = new Thread(new MyNodeThread());
+                                        nodeThread13.start();
+                                        waitABit();
+                                        waitABit();
+                                        waitABit();
                                     }
                                 }
-                                if(!node.NodesRight.get(1).equals(node.NodesRight.get(0))) {
-                                    //handle next link
-                                    nodeIp = node.NodesRight.get(1);
-                                    String leftList2 = node.NodesRight.get(0) + "," + THIS_IP_ADDRESS + "," + node.NodesLeft.get(0);
-                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList2 + ",left");
-                                    Thread nodeThread5 = new Thread(new MyNodeThread());
-                                    nodeThread5.start();
-                                    waitABit();
-                                    waitABit();
-                                    waitABit();
-                                }
-                                if(!node.NodesLeft.get(1).equals(node.NodesLeft.get(0))){
-                                    nodeIp = node.NodesLeft.get(1);
-                                    String rightList2 = node.NodesLeft.get(1) + "," + THIS_IP_ADDRESS + "," + node.NodesLeft.get(1);
-                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList2 + ",right");
-                                    Thread nodeThread6 = new Thread(new MyNodeThread());
-                                    nodeThread6.start();
-                                    waitABit();
-                                    waitABit();
-                                    waitABit();
-                                }
-                                if(!node.NodesRight.get(2).equals(node.NodesRight.get(1))) {
-                                    //handle next link
-                                    nodeIp = node.NodesRight.get(2);
-                                    String leftList3 = node.NodesRight.get(1) + "," + node.NodesRight.get(0) + "," + THIS_IP_ADDRESS;
-                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", leftList3 + ",left");
-                                    Thread nodeThread7 = new Thread(new MyNodeThread());
-                                    nodeThread7.start();
-                                    waitABit();
-                                    waitABit();
-                                    waitABit();
-                                }
-                                if(!node.NodesLeft.get(2).equals(node.NodesLeft.get(1))){
-                                    nodeIp = node.NodesLeft.get(2);
-                                    String rightList8 = node.NodesLeft.get(1) + "," + node.NodesLeft.get(0) + "," + THIS_IP_ADDRESS;
-                                    nodeCommand = HandleApi.createHttpRequest("Get", "newNeighbor", rightList8 + ",right");
-                                    Thread nodeThread8 = new Thread(new MyNodeThread());
-                                    nodeThread8.start();
-                                    waitABit();
-                                    waitABit();
-                                    waitABit();
-                                }
-
                             }else if (input.path.equalsIgnoreCase("newNeighbor")) {
                                 //run with path=newNeighbor and body=id1,id2,id3,left
                                 status = "200 ok";
