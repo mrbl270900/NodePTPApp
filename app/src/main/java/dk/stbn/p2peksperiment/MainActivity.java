@@ -497,9 +497,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 System.out.println(client.getRemoteSocketAddress().toString());
                                 if(node.NodesLeft.get(0).equals(client.getRemoteSocketAddress().toString())
                                         || node.NodesRight.get(0).equals(client.getRemoteSocketAddress().toString())){
-                                    response = "Data id: " + node.AddData(input.body);
-                                }else{
                                     response = "Data id: " + node.AddData(input.body, client.getRemoteSocketAddress().toString());
+                                }else{
+                                    response = "Data id: " + node.AddData(input.body, THIS_IP_ADDRESS);
                                     nodeCommand = HandleApi.createHttpRequest("Get", "adddata", input.body);
                                     nodeIp = node.NodesLeft.get(0);
                                     Thread nodeThread1 = new Thread(new MyNodeThread());
@@ -652,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     neighborLeft.add(nodeIp);
                     neighborLeft.add(dataSplit[0]);
                     neighborLeft.add(dataSplit[1]);
-                    node.newNeighbor(neighborLeft, "right");
+                    node.newNeighbor(neighborLeft, "left");
                     List<String> rightList = new ArrayList<>();
                     rightList.add(THIS_IP_ADDRESS);
                     rightList.add(node.NodesLeft.get(0));
@@ -687,6 +687,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
 
+                // skulle have implmenteret nye naboer for vores ny nabos naboer men er ikke gjort
                 nodeCommand = HandleApi.createHttpRequest("Get", "GetPhonebookLeft", "tom");
                 Thread nodeThread1 = new Thread(new MyNodeThread());
                 nodeThread1.start();
