@@ -15,8 +15,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.json.JSONObject;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,18 +23,11 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-    // Global data
-    private final int PORT = 4444;
     int clientNumber = 0;
     // UI-elements
     private Button startClient, submitIP;
@@ -57,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String nodeIp;
     private boolean clientStarted = false;
     private String dataFromOtherNode;
-    private Node node;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,17 +75,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         THIS_IP_ADDRESS = getLocalIpAddress();
         sUpdate("This IP is " + THIS_IP_ADDRESS);
 
-        //setting up a node
-        List<String> nodesLeft = new ArrayList<>();
-        nodesLeft.add(THIS_IP_ADDRESS);
-        nodesLeft.add(THIS_IP_ADDRESS);
-        nodesLeft.add(THIS_IP_ADDRESS);
-        List<String> nodesRight = new ArrayList<>();
-        nodesRight.add(THIS_IP_ADDRESS);
-        nodesRight.add(THIS_IP_ADDRESS);
-        nodesRight.add(THIS_IP_ADDRESS);
-        node = new Node(THIS_IP_ADDRESS, nodesLeft, nodesRight);
-
 
         //Starting the server thread
         serverThread.start();
@@ -109,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (view == startClient) {
             if (!clientStarted) {
                 clientStarted = true;
-                command = HandleApi.createHttpRequest("Get", "getId", "empty");
+                command = HandleApi.createHttpRequest("getId", "");
                 System.out.println(command);
                 clientThread.start();
                 clientinfo += "- - - CLIENT STARTED - - - \n";
@@ -118,9 +97,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!ipInputField.getText().toString().equals(REMOTE_IP_ADDRESS)) {
                     String newCommand = ipInputField.getText().toString();
                     String[] newCommandList = newCommand.split(",");
-                    command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1], newCommandList[2]);
+                    command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1]);
                 } else {
-                    command = HandleApi.createHttpRequest("Get", "getId", "empty");
+                    command = HandleApi.createHttpRequest("Get", "empty");
                     System.out.println(command);
                 }
                 Thread clientThread = new Thread(new MyClientThread());
@@ -248,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //logic to handle things
                             if (input.path.equalsIgnoreCase("getId")) {
                                 //run with getId
-                                response = node.getId();
                                 status = "200 ok";
                             } else {
                                 status = "400 bad rec";

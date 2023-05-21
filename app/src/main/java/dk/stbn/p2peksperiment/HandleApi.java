@@ -7,7 +7,6 @@ public class HandleApi {
             JSONObject json = new JSONObject(input);
             Request request = new Request();
             request.method = json.getString("method");
-            request.path = json.getString("path");
             request.body = json.getString("body");
             return request;
 
@@ -16,15 +15,12 @@ public class HandleApi {
         }
     }
 
-    public static String createHttpRequest(String method, String path, String body) throws RuntimeException{
+    public static String createHttpRequest(String method, String body) throws RuntimeException{
         try {
             JSONObject json = new JSONObject();
             Request request = new Request();
             request.method = method;
-            request.path = path;
             request.body = body;
-            json.put("header", "HTTP/1.1");
-            json.put("path", request.path);
             json.put("method", request.method);
             json.put("body", request.body);
 
@@ -43,7 +39,6 @@ public class HandleApi {
 
         try {
             JSONObject json = new JSONObject();
-            json.put("header", "HTTP/1.1");
             json.put("status", response.status);
             json.put("body", response.body);
             return json.toString();
