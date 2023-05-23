@@ -20,6 +20,7 @@ public class Network {
     public String getPostList(){return postList.toString();}
 
     public void addPeer(String inputIp, String inputUsername){peerList.add(new User(inputIp, inputUsername));}
+    public void addPeer(User inputUser){peerList.add(inputUser);}
 
     public void EndNetwork(){
 

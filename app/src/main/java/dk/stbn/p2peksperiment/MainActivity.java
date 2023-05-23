@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean serverCarryOn = true;
     private boolean clientStarted = false;
     private Network network;
+    private User serverUser;
     private User clientUser;
 
     @Override
@@ -73,6 +74,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         THIS_IP_ADDRESS = getLocalIpAddress();
         sUpdate("This IP is " + THIS_IP_ADDRESS);
 
+        //setteing up network and its test data
+        serverUser = new User("0" ,"server owner");
+        network = new Network(THIS_IP_ADDRESS);
+        network.addPeer(serverUser);
+        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().length() - 1));
+        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().length() - 1));
+        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().length() - 1));
+
 
         //Starting the server thread
         serverThread.start();
@@ -88,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 clientStarted = true;
                 command = HandleApi.createHttpRequest("getId", "");
                 System.out.println(command);
+                clientUser = new User("1", "User01");
                 clientThread.start();
                 clientinfo += "- - - CLIENT STARTED - - - \n";
                 startClient.setText("Resend");
@@ -97,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String[] newCommandList = newCommand.split(",");
                     command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1]);
                 } else {
-                    command = HandleApi.createHttpRequest("Get", "empty");
+                    command = HandleApi.createHttpRequest("newpeer", "empty");
                     System.out.println(command);
                 }
                 Thread clientThread = new Thread(new MyClientThread());
@@ -223,8 +233,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             sUpdate("Client says: " + str);
                             System.out.println("client to server " + str);
                             //logic to handle things
-                            if (input.path.equalsIgnoreCase("getId")) {
+                            if (input.method.equalsIgnoreCase("newpeer")) {
                                 //run with getId
+                                network.addPeer(input.body, input.body);
+                                response = "peer added";
                                 status = "200 ok";
                             } else {
                                 status = "400 bad rec";
