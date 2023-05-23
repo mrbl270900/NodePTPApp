@@ -41,13 +41,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Thread serverThread = new Thread(new MyServerThread());
     private Thread clientThread = new Thread(new MyClientThread());
     private String command = "getId";
-    // Some state
-    private String nodeCommand;
     private boolean ip_submitted = false;
     private boolean serverCarryOn = true;
-    private String nodeIp;
     private boolean clientStarted = false;
-    private String dataFromOtherNode;
+    private Network network;
+    private User clientUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
