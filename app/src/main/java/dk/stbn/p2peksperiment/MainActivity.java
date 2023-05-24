@@ -75,13 +75,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sUpdate("This IP is " + THIS_IP_ADDRESS);
 
         //setteing up network and its test data
-        serverUser = new User("0" ,"server owner");
+        serverUser = new User(THIS_IP_ADDRESS ,"server owner");
         network = new Network(THIS_IP_ADDRESS);
+        /*
         network.addPeer(serverUser);
         network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().length() - 1));
         network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().length() - 1));
         network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().length() - 1));
-
+        */
 
         //Starting the server thread
         serverThread.start();
