@@ -5,13 +5,10 @@ import android.annotation.SuppressLint;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,15 +28,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     int clientNumber = 0;
     // UI-elements
     private Button startClient, submitIP;
-    private TextView serverInfoTv, clientInfoTv;
     private EditText ipInputField;
     // Logging/status messages
     private String serverinfo = "SERVER LOG:";
     private String clientinfo = "CLIENT LOG: ";
     private String THIS_IP_ADDRESS = "";
     private String REMOTE_IP_ADDRESS = "";
-    private Thread serverThread = new Thread(new MyServerThread());
-    private Thread clientThread = new Thread(new MyClientThread());
+    private final Thread serverThread = new Thread(new MyServerThread());
+    private final Thread clientThread = new Thread(new MyClientThread());
     private String command = "getId";
     private boolean ip_submitted = false;
     private boolean serverCarryOn = true;
@@ -57,8 +53,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //UI boilerplate
         startClient = findViewById(R.id.button);
-        serverInfoTv = findViewById(R.id.serveroutput);
-        clientInfoTv = findViewById(R.id.clientoutput);
         submitIP = findViewById(R.id.sendclient);
         ipInputField = findViewById(R.id.clientmessagefield);
 
@@ -72,17 +66,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Getting the IP address of the device
         THIS_IP_ADDRESS = getLocalIpAddress();
-        sUpdate("This IP is " + THIS_IP_ADDRESS);
 
         //setteing up network and its test data
         serverUser = new User(THIS_IP_ADDRESS ,"server owner");
         network = new Network(THIS_IP_ADDRESS);
-        /*
-        network.addPeer(serverUser);
-        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().length() - 1));
-        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().length() - 1));
-        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().length() - 1));
-        */
+
+        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().size()));
+        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size()));
+        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size()));
 
         //Starting the server thread
         serverThread.start();
@@ -96,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (view == startClient) {
             if (!clientStarted) {
                 clientStarted = true;
-                command = HandleApi.createHttpRequest("getId", "");
+                command = HandleApi.createHttpRequest("newpeer", "mads");
                 System.out.println(command);
                 clientUser = new User("1", "User01");
                 clientThread.start();
@@ -108,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String[] newCommandList = newCommand.split(",");
                     command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1]);
                 } else {
-                    command = HandleApi.createHttpRequest("newpeer", "empty");
+                    command = HandleApi.createHttpRequest("newpeer", "mads");
                     System.out.println(command);
                 }
                 Thread clientThread = new Thread(new MyClientThread());
@@ -150,34 +141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        //Server update TexView
-        private void sUpdate(String message) {
-            //Run this code on UI-thread
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    serverinfo = message + "\n" + serverinfo;
-                    serverInfoTv.setText(serverinfo);
-                }
-            });
-
-        }
-
-        //Client update TextView
-        private void cUpdate(String message) {
-            System.out.println(message);
-
-            //Run this code on UI-thread
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    clientinfo = message + "\n" + clientinfo;
-                    clientInfoTv.setText(clientinfo);
-                }
-            });
-        }
-
-    class MyServerThread implements Runnable {
+    class MyServerThread extends Thread implements Runnable {
         @SuppressLint("SuspiciousIndentation")
         @Override
         public void run() {
@@ -189,9 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     //Always be ready for next client
                     while (true) {
-                        sUpdate("SERVER: start listening..");
                         Socket clientSocket = serverSocket.accept();
-                        sUpdate("SERVER connection accepted");
                         clientNumber++;
                         new RemoteClient(clientSocket, clientNumber).start();
 
@@ -231,12 +193,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             Request input = HandleApi.readHttpRequest(str);
 
-                            sUpdate("Client says: " + str);
                             System.out.println("client to server " + str);
                             //logic to handle things
                             if (input.method.equalsIgnoreCase("newpeer")) {
-                                //run with getId
-                                network.addPeer(input.body, input.body);
+                                //run with newpeer
+                                String peerIp = client.getRemoteSocketAddress().toString();
+                                network.addPeer(peerIp.substring(1, peerIp.length()-6), input.body);
                                 response = "peer added";
                                 status = "200 ok";
                             } else {
@@ -251,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
 
                         String jsonString = HandleApi.createHttpResponse(response, status);
-                        sUpdate(jsonString);
                         outNodeStream.writeUTF(jsonString);
                         outNodeStream.flush();
                         waitABit();
@@ -264,13 +225,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Closing everything down
                 client.shutdownInput();
-                sUpdate("SERVER: inputstream closed");
                 client.shutdownOutput();
-                sUpdate("SERVER: outputstream closed");
                 client.close();
-                sUpdate("SERVER: Client socket closed");
             } catch (IOException e) {
-                sUpdate("oops!!");
                 throw new RuntimeException(e);
             }
         }
@@ -281,28 +238,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
 
                 try {
-                    cUpdate("CLIENT: starting client socket ");
                     Socket connectionToServer = new Socket();
                     SocketAddress socketAddress = new InetSocketAddress(REMOTE_IP_ADDRESS, 4444);
                     connectionToServer.connect(socketAddress, 10000);
-                    cUpdate("CLIENT: client connected ");
 
                     DataInputStream inClientStream = new DataInputStream(connectionToServer.getInputStream());
                     DataOutputStream outClientStream = new DataOutputStream(connectionToServer.getOutputStream());
                     String messageFromServer;
                     outClientStream.writeUTF(command);
                     outClientStream.flush();
-                    cUpdate("I said:      " + command);
                     messageFromServer = inClientStream.readUTF();
                     Response response = HandleApi.readHttpResponse(messageFromServer);
-                    cUpdate("Server says: " + response);
                     waitABit();
                     connectionToServer.shutdownInput();
-                    cUpdate("CLIENT: closed inputstream");
                     connectionToServer.shutdownOutput();
-                    cUpdate("CLIENT: closed outputstream");
                     connectionToServer.close();
-                    cUpdate("CLIENT: closed socket");
 
                 } catch (IOException e) {
                     e.printStackTrace();

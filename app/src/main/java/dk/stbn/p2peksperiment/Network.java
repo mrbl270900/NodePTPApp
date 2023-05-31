@@ -1,11 +1,12 @@
 package dk.stbn.p2peksperiment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Network {
-    private List<Post> postList;
+    private List<Post> postList = new ArrayList<Post>();
 
-    private List<User> peerList;
+    private List<User> peerList = new ArrayList<User>();
 
     private String networkCode;
 
@@ -17,7 +18,7 @@ public class Network {
         postList.add(inputPost);
     }
 
-    public String getPostList(){return postList.toString();}
+    public List<Post> getPostList(){return postList;}
 
     public void addPeer(String inputIp, String inputUsername){peerList.add(new User(inputIp, inputUsername));}
     public void addPeer(User inputUser){peerList.add(inputUser);}
