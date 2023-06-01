@@ -27,7 +27,7 @@ import java.nio.ByteOrder;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     int clientNumber = 0;
     // UI-elements
-    private Button startClient, submitIP;
+    private Button startServer, submitIP;
     private EditText ipInputField;
     // Logging/status messages
     private String serverinfo = "SERVER LOG:";
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String command = "getId";
     private boolean ip_submitted = false;
     private boolean serverCarryOn = true;
-    private boolean clientStarted = false;
+    private boolean serverStarted = false;
     private Network network;
     private User serverUser;
     private User clientUser;
@@ -52,17 +52,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         StrictMode.setThreadPolicy(policy);
 
         //UI boilerplate
-        startClient = findViewById(R.id.button);
+        startServer = findViewById(R.id.button);
         submitIP = findViewById(R.id.sendclient);
         ipInputField = findViewById(R.id.clientmessagefield);
 
         //Setting click-listeners on buttons
-        startClient.setOnClickListener(this);
+        startServer.setOnClickListener(this);
         submitIP.setOnClickListener(this);
 
         //Setting some UI state
         ipInputField.setHint("Submit IP-address");
-        startClient.setEnabled(false); //deactivates the button
+        startServer.setEnabled(false); //deactivates the button
 
         //Getting the IP address of the device
         THIS_IP_ADDRESS = getLocalIpAddress();
@@ -75,44 +75,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size()));
         network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size()));
 
-        //Starting the server thread
-        serverThread.start();
-        serverinfo += "- - - SERVER STARTED - - -\n";
-
+        clientUser = new User("1", "User01");
     }
 
     @Override
     public void onClick(View view) {
 
-        if (view == startClient) {
-            if (!clientStarted) {
-                clientStarted = true;
-                command = HandleApi.createHttpRequest("newpeer", "mads");
-                System.out.println(command);
-                clientUser = new User("1", "User01");
-                clientThread.start();
-                clientinfo += "- - - CLIENT STARTED - - - \n";
-                startClient.setText("Resend");
+        if (view == startServer) {
+            if (!serverStarted) {
+                serverStarted = true;
+                serverThread.start();
+                serverinfo += "- - - SERVER STARTED - - -\n";
             } else {
-                if (!ipInputField.getText().toString().equals(REMOTE_IP_ADDRESS)) {
-                    String newCommand = ipInputField.getText().toString();
-                    String[] newCommandList = newCommand.split(",");
-                    command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1]);
-                } else {
-                    command = HandleApi.createHttpRequest("newpeer", "mads");
-                    System.out.println(command);
-                }
-                Thread clientThread = new Thread(new MyClientThread());
-                clientThread.start();
+                serverStarted = false;
+                serverThread.stop();
             }
         } else if (view == submitIP) {
             if (!ip_submitted) {
                 ip_submitted = true;
                 REMOTE_IP_ADDRESS = ipInputField.getText().toString();
-                startClient.setEnabled(true);
-                submitIP.setEnabled(false);
+                command = HandleApi.createHttpRequest("newpeer", "mads");
+                System.out.println(command);
+                clientThread.start();
+                clientinfo += "- - - CLIENT STARTED - - - \n";
+                startServer.setText("Resend");
             }
         }
+        //code to send command
+        /*if (!ipInputField.getText().toString().equals(REMOTE_IP_ADDRESS)) {
+            String newCommand = ipInputField.getText().toString();
+            String[] newCommandList = newCommand.split(",");
+            command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1]);
+        } else {
+            command = HandleApi.createHttpRequest("newpeer", "mads");
+            System.out.println(command);
+        }
+        Thread clientThread = new Thread(new MyClientThread());
+        clientThread.start();*/
 
     }//onclick
 
