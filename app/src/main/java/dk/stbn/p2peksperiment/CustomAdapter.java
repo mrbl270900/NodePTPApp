@@ -9,6 +9,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -43,6 +46,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
         holder.postSubjekt.setText(post.getContens());
         holder.postContens.setText(post.getSubject() + "\n Likes: " + post.getLikeList().size());
         holder.postOwner.setText("Author: " + post.getOwner());
+
+        holder.commentsView.setAdapter(new CommentsAdapter(context, post.getComments()));
+        holder.commentsView.addItemDecoration(new DividerItemDecoration(context,
+                LinearLayoutManager.VERTICAL));
 
         if (post.getLikeList().contains(user.getUsername())) {
             holder.like.setText("Unlike");
@@ -110,6 +117,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
             commentInput = itemView.findViewById(R.id.CommentEditText);
 
             commentsView = itemView.findViewById(R.id.recyclerView2);
+
+            commentsView.setLayoutManager(new LinearLayoutManager(context));
+
+            DefaultItemAnimator animator = (DefaultItemAnimator) commentsView.getItemAnimator();
+            animator.setSupportsChangeAnimations(false);
         }
     }
 }

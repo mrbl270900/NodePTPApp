@@ -61,7 +61,7 @@ public class Post {
     }
 
 
-    private class Comment{
+    public class Comment{
         private String owner;
         private String contens;
         private int id;
@@ -70,6 +70,13 @@ public class Post {
             owner = inputOwner;
             contens = inputContens;
             id = inputId;
+        }
+
+        public String getContens(){
+            return this.contens;
+        }
+        public String getOwner(){
+            return this.owner;
         }
     }
 
