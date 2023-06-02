@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ipInputField.setHint("Input Network Ip");
                 submitIP.setText("Join Network");
                 startServer.setEnabled(true);
+                ipInputField.clearFocus();
+
             }else if (!ip_submitted) {
                 ip_submitted = true;
                 REMOTE_IP_ADDRESS = ipInputField.getText().toString();
