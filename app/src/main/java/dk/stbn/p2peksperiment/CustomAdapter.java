@@ -2,6 +2,7 @@ package dk.stbn.p2peksperiment;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -9,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,11 +51,26 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
 
         holder.commentsView.setAdapter(new CommentsAdapter(context, post.getComments()));
         holder.commentsView.addItemDecoration(new DividerItemDecoration(context,
-                LinearLayoutManager.VERTICAL));
+                LinearLayoutManager.HORIZONTAL));
 
         if (post.getLikeList().contains(user.getUsername())) {
             holder.like.setText("Unlike");
         }
+
+            holder.commentsView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (view.getId() == holder.commentsView.getId()) {
+                        if (MotionEventCompat.getActionMasked(motionEvent) == MotionEvent.ACTION_UP) {
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                        } else {
+                            view.getParent().requestDisallowInterceptTouchEvent(true);
+                        }
+                    }
+
+                    return view.onTouchEvent(motionEvent);
+                }
+            });
 
             holder.like.setOnClickListener(new View.OnClickListener() {
                 @Override

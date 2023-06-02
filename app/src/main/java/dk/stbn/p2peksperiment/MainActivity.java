@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.InputType;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -110,6 +111,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network.addPost(new Post(user.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
                 network.addPost(new Post(user.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
 
+                network.getPostList().get(0).addComment("TestBruger", "god test commentar");
+                network.getPostList().get(0).addComment("TestBruger2", "god test commentar2");
+                network.getPostList().get(1).addComment("TestBruger", "god test commentar");
+                network.getPostList().get(0).addLike("TestBruger");
+
                 startServer.setText("Stop Server");
                 postView.setAdapter(new CustomAdapter(this, network.getPostList(), user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
@@ -134,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 submitIP.setText("Join Network");
                 startServer.setEnabled(true);
                 ipInputField.clearFocus();
+                InputMethodManager imm = (InputMethodManager)getSystemService(this.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
             }else if (!ip_submitted) {
                 ip_submitted = true;
