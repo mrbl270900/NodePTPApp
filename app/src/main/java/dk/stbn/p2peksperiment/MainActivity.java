@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,8 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Network network;
 
 //should only be one user is 2 in testing that is useres
-    private User serverUser;
-    private User clientUser;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,15 +63,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         postView.setLayoutManager(new LinearLayoutManager(this));
 
+        DefaultItemAnimator animator = (DefaultItemAnimator) postView.getItemAnimator();
+        animator.setSupportsChangeAnimations(false);
+
         //Setting click-listeners on buttons
         startServer.setOnClickListener(this);
         submitIP.setOnClickListener(this);
 
         //Setting some UI state
-        ipInputField.setHint("Input Network Ip");
+        ipInputField.setHint("Input Username");
+        submitIP.setText("Set Username");
 
         //Getting the IP address of the device
         THIS_IP_ADDRESS = getLocalIpAddress();
+
+        startServer.setEnabled(false);
+
     }
 
     @Override
@@ -86,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ipInputField.setEnabled(true);
                 ipInputField.setInputType(InputType.TYPE_CLASS_TEXT);
                 ip_submitted = false;
-                command = HandleApi.createHttpRequest("leaveNetwork", clientUser.getUsername());
+                command = HandleApi.createHttpRequest("leaveNetwork", user.getUsername());
                 System.out.println(command);
                 Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();
@@ -97,15 +104,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 serverThread.start();
 
                 //setteing up network and its test data
-                serverUser = new User(THIS_IP_ADDRESS ,"server owner");
                 network = new Network(THIS_IP_ADDRESS);
 
-                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().size(), "dette er noget inhold"));
-                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
-                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(user.getUsername(), "dette er et test post 1", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(user.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(user.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
 
                 startServer.setText("Stop Server");
-                postView.setAdapter(new CustomAdapter(this, network.getPostList()));
+                postView.setAdapter(new CustomAdapter(this, network.getPostList(), user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
                         LinearLayoutManager.VERTICAL));
 
@@ -116,16 +122,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network = new Network(THIS_IP_ADDRESS);
                 startServer.setText("Start server");
                 serverThread = new Thread(new MyServerThread());
-                postView.setAdapter(new CustomAdapter(this, network.getPostList()));
+                postView.setAdapter(new CustomAdapter(this, network.getPostList(), user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
                         LinearLayoutManager.VERTICAL));
             }
         } else if (view == submitIP) {
-            if (!ip_submitted) {
+            if(user == null){
+                user = new User(THIS_IP_ADDRESS ,ipInputField.getText().toString());
+                ipInputField.setText("");
+                ipInputField.setHint("Input Network Ip");
+                submitIP.setText("Join Network");
+                startServer.setEnabled(true);
+            }else if (!ip_submitted) {
                 ip_submitted = true;
-                clientUser = new User("1", "User01");
                 REMOTE_IP_ADDRESS = ipInputField.getText().toString();
-                command = HandleApi.createHttpRequest("newpeer", clientUser.getUsername());
+                command = HandleApi.createHttpRequest("newpeer", user.getUsername());
                 System.out.println(command);
                 Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();
@@ -134,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ipInputField.setEnabled(false);
                 ipInputField.setInputType(InputType.TYPE_NULL);
             }else{
-                command = HandleApi.createHttpRequest("getdata", clientUser.getUsername());
+                command = HandleApi.createHttpRequest("getdata", user.getUsername());
                 System.out.println(command);
                 Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();

@@ -3,9 +3,7 @@ package dk.stbn.p2peksperiment;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,15 +18,19 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
     private Context context;
     private List<Post> Data;
 
-    public CustomAdapter (Context context, List<Post> data) {
+    private User user;
+
+    public CustomAdapter (Context context, List<Post> data, User user) {
         this.context = context;
         this.Data = data;
+        this.user = user;
     }
 
 
     @NonNull
     @Override
     public CustomHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         View view = LayoutInflater.from(context).inflate(R.layout.post_layout, parent, false);
 
         return new CustomHolder(view);
@@ -37,7 +39,47 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
     @Override
     public void onBindViewHolder(@NonNull CustomAdapter.CustomHolder holder, int position) {
         Post post = Data.get(position);
-        holder.setDetails(post);
+
+        holder.postSubjekt.setText(post.getContens());
+        holder.postContens.setText(post.getSubject() + "\n Likes: " + post.getLikeList().size());
+        holder.postOwner.setText("Author: " + post.getOwner());
+
+        if (post.getLikeList().contains(user.getUsername())) {
+            holder.like.setText("Unlike");
+        }
+
+            holder.like.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (view == holder.like) {
+                        //replace test with username from var of client
+                        if (!post.getLikeList().contains(user.getUsername())) {
+                            post.addLike(user.getUsername());
+                            holder.like.setText("Unlike");
+                            Data.set(post.getId(), post);
+                            notifyItemChanged(holder.getAdapterPosition(), 1);
+                        } else {
+                            post.removeLike(user.getUsername());
+                            holder.like.setText("Like");
+                            Data.set(post.getId(), post);
+                            notifyItemChanged(holder.getAdapterPosition(), 1);
+                        }
+                    }
+                }
+            });
+
+            holder.comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (view == holder.comment) {
+                        String input = holder.commentInput.getText().toString();
+                        post.addComment(user.getUsername(), input);
+                        Data.set(post.getId(), post);
+                        System.out.println(input + holder.getAdapterPosition());
+                        notifyItemChanged(holder.getAdapterPosition(), 1);
+                    }
+                }
+            });
     }
 
     @Override
@@ -63,50 +105,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
             postOwner = itemView.findViewById(R.id.OwnerTextView);
 
             like = itemView.findViewById(R.id.LikeButton);
-            like.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(view == like){
-                        //replace test with username from var of client
-                        if(post.getLikeList().contains("test")){
-                            post.addLike("test");
-                            like.setText("Unlike");
-                        }else{
-                            post.removeLike("test");
-                            like.setText("Like");
-                        }
-                    }
-                }
-            });
             comment = itemView.findViewById(R.id.CommentButton);
-            comment.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(view == comment){
-                        String input = commentInput.getText().toString();
-                        post.addComment("test", input);
-                    }
-                }
-            });
 
             commentInput = itemView.findViewById(R.id.CommentEditText);
 
             commentsView = itemView.findViewById(R.id.recyclerView2);
-        }
-
-        void setDetails(Post input){
-            post = input;
-            postSubjekt.setText(input.getContens());
-            postContens.setText(input.getSubject() + "\n Likes: " + input.getLikeList().size());
-            postOwner.setText("Author: " + input.getOwner());
-
-            //replace test with username from var of client
-            if(post.getLikeList().contains("test")){
-                like.setText("Unlike");
-            }
-
-
-
         }
     }
 }
