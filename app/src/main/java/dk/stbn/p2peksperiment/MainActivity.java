@@ -98,9 +98,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 serverUser = new User(THIS_IP_ADDRESS ,"server owner");
                 network = new Network(THIS_IP_ADDRESS);
 
-                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().size()));
-                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size()));
-                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size()));
+                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
 
                 startServer.setText("Stop Server");
                 postView.setAdapter(new CustomAdapter(this, network.getPostList()));

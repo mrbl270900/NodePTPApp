@@ -4,23 +4,45 @@ import java.util.List;
 
 public class Post {
 
-    public String owner;
+    private String owner;
 
-    public int id;
+    private int id;
 
-    public String subject;
+    private String subject;
 
-    public List<Comment> commentsList;
+    private List<Comment> commentsList;
+
+    private String contens;
 
 
-    public Post(String inputOwner, String inputSubject, int inputId){
-        owner = inputOwner;
-        id = inputId;
-        subject = inputSubject;
+    public Post(String Owner, String Subject, int Id, String contens){
+        this.owner = Owner;
+        this.id = Id;
+        this.subject = Subject;
+        this.contens = contens;
     }
 
     public void addComment(String inputOwner, String inputContens){
         commentsList.add(new Comment(inputOwner, inputContens, commentsList.toArray().length));
+    }
+
+    public String getOwner(){
+        return this.owner;
+    }
+
+    public String getContens(){
+        return this.contens;
+    }
+    public String getSubject(){
+        return this.subject;
+    }
+
+    public int getId(){
+        return this.id;
+    }
+
+    public List<Comment> getComments(){
+        return this.commentsList;
     }
 
 
