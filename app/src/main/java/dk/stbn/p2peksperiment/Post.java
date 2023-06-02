@@ -4,13 +4,13 @@ import java.util.List;
 
 public class Post {
 
-    private String owner;
+    public String owner;
 
-    private int id;
+    public int id;
 
-    private String subject;
+    public String subject;
 
-    private List<Comment> commentsList;
+    public List<Comment> commentsList;
 
 
     public Post(String inputOwner, String inputSubject, int inputId){

@@ -6,11 +6,15 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,17 +33,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // UI-elements
     private Button startServer, submitIP;
     private EditText ipInputField;
-    // Logging/status messages
-    private String serverinfo = "SERVER LOG:";
-    private String clientinfo = "CLIENT LOG: ";
+    private RecyclerView postView;
     private String THIS_IP_ADDRESS = "";
     private String REMOTE_IP_ADDRESS = "";
-    private final Thread serverThread = new Thread(new MyServerThread());
-    private final Thread clientThread = new Thread(new MyClientThread());
+    private Thread serverThread = new Thread(new MyServerThread());
     private String command = "getId";
     private boolean ip_submitted = false;
     private boolean serverCarryOn = true;
     private boolean serverStarted = false;
+    private boolean serverRunning = false;
     private Network network;
     private User serverUser;
     private User clientUser;
@@ -55,64 +57,86 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startServer = findViewById(R.id.button);
         submitIP = findViewById(R.id.sendclient);
         ipInputField = findViewById(R.id.clientmessagefield);
+        postView = findViewById(R.id.recyclerView);
+
+        postView.setLayoutManager(new LinearLayoutManager(this));
 
         //Setting click-listeners on buttons
         startServer.setOnClickListener(this);
         submitIP.setOnClickListener(this);
 
         //Setting some UI state
-        ipInputField.setHint("Submit IP-address");
-        startServer.setEnabled(false); //deactivates the button
+        ipInputField.setHint("Input Network Ip");
 
         //Getting the IP address of the device
         THIS_IP_ADDRESS = getLocalIpAddress();
-
-        //setteing up network and its test data
-        serverUser = new User(THIS_IP_ADDRESS ,"server owner");
-        network = new Network(THIS_IP_ADDRESS);
-
-        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().size()));
-        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size()));
-        network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size()));
-
-        clientUser = new User("1", "User01");
     }
 
     @Override
     public void onClick(View view) {
 
         if (view == startServer) {
-            if (!serverStarted) {
+            if(ip_submitted){
+                REMOTE_IP_ADDRESS = "";
+                startServer.setText("Start Server");
+                network = new Network(THIS_IP_ADDRESS);
+                submitIP.setText("Join network");
+                ipInputField.setEnabled(true);
+                ipInputField.setInputType(InputType.TYPE_CLASS_TEXT);
+                ip_submitted = false;
+                command = HandleApi.createHttpRequest("leaveNetwork", clientUser.getUsername());
+                System.out.println(command);
+                Thread clientThread = new Thread(new MyClientThread());
+                clientThread.start();
+            }
+            else if (!serverStarted) {
                 serverStarted = true;
+                serverRunning = true;
                 serverThread.start();
-                serverinfo += "- - - SERVER STARTED - - -\n";
+
+                //setteing up network and its test data
+                serverUser = new User(THIS_IP_ADDRESS ,"server owner");
+                network = new Network(THIS_IP_ADDRESS);
+
+                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 1", network.getPostList().size()));
+                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 2", network.getPostList().size()));
+                network.addPost(new Post(serverUser.getUsername(), "dette er et test post 3", network.getPostList().size()));
+
+                startServer.setText("Stop Server");
+                postView.setAdapter(new CustomAdapter(this, network.getPostList()));
+                postView.addItemDecoration(new DividerItemDecoration(this,
+                        LinearLayoutManager.VERTICAL));
+
+
+
             } else {
+                serverRunning = false;
                 serverStarted = false;
-                serverThread.stop();
+                serverCarryOn = false;
+                network = new Network(THIS_IP_ADDRESS);
+                startServer.setText("Start server");
+                serverThread = new Thread(new MyServerThread());
             }
         } else if (view == submitIP) {
             if (!ip_submitted) {
                 ip_submitted = true;
+                clientUser = new User("1", "User01");
                 REMOTE_IP_ADDRESS = ipInputField.getText().toString();
-                command = HandleApi.createHttpRequest("newpeer", "mads");
+                command = HandleApi.createHttpRequest("newpeer", clientUser.getUsername());
                 System.out.println(command);
+                Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();
-                clientinfo += "- - - CLIENT STARTED - - - \n";
-                startServer.setText("Resend");
+                submitIP.setText("Opdate data");
+                startServer.setText("End connection");
+                ipInputField.setEnabled(false);
+                ipInputField.setInputType(InputType.TYPE_NULL);
+            }else{
+                command = HandleApi.createHttpRequest("getdata", clientUser.getUsername());
+                System.out.println(command);
+                Thread clientThread = new Thread(new MyClientThread());
+                clientThread.start();
             }
         }
-        //code to send command
-        /*if (!ipInputField.getText().toString().equals(REMOTE_IP_ADDRESS)) {
-            String newCommand = ipInputField.getText().toString();
-            String[] newCommandList = newCommand.split(",");
-            command = HandleApi.createHttpRequest(newCommandList[0], newCommandList[1]);
-        } else {
-            command = HandleApi.createHttpRequest("newpeer", "mads");
-            System.out.println(command);
-        }
-        Thread clientThread = new Thread(new MyClientThread());
-        clientThread.start();*/
-
     }//onclick
 
         // !!! Returns 0.0.0.0 on emulator
@@ -145,11 +169,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
             //Always be ready for next client
-            boolean running = true;
-            while (true) {
-                try {
-                    ServerSocket serverSocket = new ServerSocket(4444);
-
+            try {
+                ServerSocket serverSocket = new ServerSocket();
+                while (serverRunning) {
+                    serverSocket = new ServerSocket(4444);
                     //Always be ready for next client
                     while (true) {
                         Socket clientSocket = serverSocket.accept();
@@ -157,11 +180,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new RemoteClient(clientSocket, clientNumber).start();
 
                     }//while listening for clients
-
-                } catch (IOException e) {
+                }
+                serverSocket.close();
+                } catch(IOException e){
                     throw new RuntimeException(e);
                 }
-            }
         }
     }
 
