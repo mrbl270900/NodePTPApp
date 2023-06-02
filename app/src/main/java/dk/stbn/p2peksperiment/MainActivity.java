@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean serverStarted = false;
     private boolean serverRunning = false;
     private Network network;
+
+//should only be one user is 2 in testing that is useres
     private User serverUser;
     private User clientUser;
 
@@ -107,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 postView.addItemDecoration(new DividerItemDecoration(this,
                         LinearLayoutManager.VERTICAL));
 
-
-
             } else {
                 serverRunning = false;
                 serverStarted = false;
@@ -116,6 +116,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network = new Network(THIS_IP_ADDRESS);
                 startServer.setText("Start server");
                 serverThread = new Thread(new MyServerThread());
+                postView.setAdapter(new CustomAdapter(this, network.getPostList()));
+                postView.addItemDecoration(new DividerItemDecoration(this,
+                        LinearLayoutManager.VERTICAL));
             }
         } else if (view == submitIP) {
             if (!ip_submitted) {

@@ -1,5 +1,6 @@
 package dk.stbn.p2peksperiment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
@@ -10,9 +11,12 @@ public class Post {
 
     private String subject;
 
-    private List<Comment> commentsList;
+    private List<Comment> commentsList = new ArrayList<>();
 
     private String contens;
+
+    private List<String> likeList = new ArrayList<>();
+
 
 
     public Post(String Owner, String Subject, int Id, String contens){
@@ -24,6 +28,13 @@ public class Post {
 
     public void addComment(String inputOwner, String inputContens){
         commentsList.add(new Comment(inputOwner, inputContens, commentsList.toArray().length));
+    }
+
+    public void addLike(String userName){
+        likeList.add(userName);
+    }
+    public void removeLike(String userName){
+        likeList.remove(userName);
     }
 
     public String getOwner(){
@@ -43,6 +54,10 @@ public class Post {
 
     public List<Comment> getComments(){
         return this.commentsList;
+    }
+
+    public List<String> getLikeList(){
+        return this.likeList;
     }
 
 

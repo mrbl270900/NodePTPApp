@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,16 +44,17 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
     public int getItemCount() {
         return Data.size();
     }
-    class CustomHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class CustomHolder extends RecyclerView.ViewHolder{
 
         private TextView postSubjekt, postOwner, postContens;
 
-        private Button like, comment, showComments;
+        private Button like, comment;
 
         private EditText commentInput;
 
         private RecyclerView commentsView;
 
+        private Post post;
         public CustomHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -61,7 +63,31 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
             postOwner = itemView.findViewById(R.id.OwnerTextView);
 
             like = itemView.findViewById(R.id.LikeButton);
+            like.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(view == like){
+                        //replace test with username from var of client
+                        if(post.getLikeList().contains("test")){
+                            post.addLike("test");
+                            like.setText("Unlike");
+                        }else{
+                            post.removeLike("test");
+                            like.setText("Like");
+                        }
+                    }
+                }
+            });
             comment = itemView.findViewById(R.id.CommentButton);
+            comment.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(view == comment){
+                        String input = commentInput.getText().toString();
+                        post.addComment("test", input);
+                    }
+                }
+            });
 
             commentInput = itemView.findViewById(R.id.CommentEditText);
 
@@ -69,21 +95,18 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
         }
 
         void setDetails(Post input){
-            postContens.setText(input.getSubject());
+            post = input;
             postSubjekt.setText(input.getContens());
-            postOwner.setText(input.getOwner());
+            postContens.setText(input.getSubject() + "\n Likes: " + input.getLikeList().size());
+            postOwner.setText("Author: " + input.getOwner());
 
-
-
-        }
-
-        @Override
-        public void onClick(View view) {
-            if(view == like){
-
-            }else if(view == comment){
-
+            //replace test with username from var of client
+            if(post.getLikeList().contains("test")){
+                like.setText("Unlike");
             }
+
+
+
         }
     }
 }
