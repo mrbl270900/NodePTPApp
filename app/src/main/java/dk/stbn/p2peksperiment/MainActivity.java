@@ -4,15 +4,22 @@ package dk.stbn.p2peksperiment;
 import android.annotation.SuppressLint;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.InputType;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -80,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         postView.setAdapter(new CustomAdapter(this, network, user));
         postView.addItemDecoration(new DividerItemDecoration(this,
                 LinearLayoutManager.VERTICAL));
+    }
+
+    public void updatePost(int postId){
+        postView.getAdapter().notifyItemChanged(postId, 1);
     }
 
     @Override
@@ -159,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //setteing up network and its test data
                 network = new Network(THIS_IP_ADDRESS);
-
+                /*//test data if needed
                 network.addPost(new Post(user.getUsername(), "dette er et test post 1", network.getPostList().size(), "dette er noget inhold"));
                 network.addPost(new Post(user.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
                 network.addPost(new Post(user.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
@@ -168,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network.getPostList().get(0).addComment("TestBruger2", "god test commentar2");
                 network.getPostList().get(1).addComment("TestBruger", "god test commentar");
                 network.getPostList().get(0).addLike("TestBruger");
-
+                */
                 startServer.setText("Stop Server");
                 postView.setAdapter(new CustomAdapter(this, network, user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
@@ -230,6 +241,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if(view == addPost) {
             //addpost logic
+            LayoutInflater inflater = (LayoutInflater)
+                    getSystemService(LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.addpost_layout, null);
+
+            // create the popup window
+            int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            boolean focusable = true; // lets taps outside the popup also dismiss it
+            popupView.setBackgroundColor(ContextCompat.getColor(this, R.color.purple_200));
+
+            EditText subjektBox = popupView.findViewById(R.id.SubjektEditTextText);
+
+            EditText contensBox = popupView.findViewById(R.id.postContensEditTextText);
+
+            Button submitButton = popupView.findViewById(R.id.SubmitPostButton);
+
+            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+            // show the popup window
+            // which view you pass in doesn't matter, it is only used for the window tolken
+            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+            submitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(view == submitButton) {
+                        network.addPost(new Post(user.getUsername(),
+                                subjektBox.getText().toString(),
+                                network.getPostList().size(),
+                                contensBox.getText().toString()));
+                        popupWindow.dismiss();
+                    }
+                }
+            });
+
+            // dismiss the popup window when touched
+            popupView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if(v != popupView){
+                        popupWindow.dismiss();
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
     }//onclick
 

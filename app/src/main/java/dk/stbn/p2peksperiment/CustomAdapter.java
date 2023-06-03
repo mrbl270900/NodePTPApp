@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -38,6 +39,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
     public CustomHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(context).inflate(R.layout.post_layout, parent, false);
+
+        view.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200));
 
         return new CustomHolder(view);
     }
