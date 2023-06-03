@@ -38,26 +38,22 @@
         android:id="@+id/CommentButton"
         android:layout_width="75dp"
         android:layout_height="48dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginRight="1dp"
         android:text="Post"
-        app:layout_constraintEnd_toStartOf="@+id/LikeButton"
         app:layout_constraintStart_toEndOf="@+id/CommentEditText"
         app:layout_constraintTop_toBottomOf="@+id/PostContensTextView" />
 
     <Button
         android:id="@+id/LikeButton"
-        android:layout_width="75dp"
+        android:layout_width="100dp"
         android:layout_height="48dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
         android:text="Like"
         app:layout_constraintBottom_toBottomOf="@+id/CommentButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/PostContensTextView"
+        app:layout_constraintStart_toEndOf="@+id/CommentButton"
         app:layout_constraintTop_toBottomOf="@+id/PostContensTextView" />
 
     <EditText
