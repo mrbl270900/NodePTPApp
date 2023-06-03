@@ -18,6 +18,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -48,6 +52,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //should only be one user is 2 in testing that is useres
     private User user;
+
+    public static void runClientCommand(String newCommand, String ip){
+        try {
+            Socket connectionToServer = new Socket();
+            SocketAddress socketAddress = new InetSocketAddress(ip, 4444);
+            connectionToServer.connect(socketAddress, 10000);
+
+            DataInputStream inClientStream = new DataInputStream(connectionToServer.getInputStream());
+            DataOutputStream outClientStream = new DataOutputStream(connectionToServer.getOutputStream());
+            String messageFromServer;
+            System.out.println(newCommand);
+            outClientStream.writeUTF(newCommand);
+            outClientStream.flush();
+            messageFromServer = inClientStream.readUTF();
+            Response response = HandleApi.readHttpResponse(messageFromServer);
+            System.out.println(response);
+            connectionToServer.shutdownInput();
+            connectionToServer.shutdownOutput();
+            connectionToServer.close();
+        }catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public void updatePosts(){
+        postView.setAdapter(new CustomAdapter(this, network, user));
+        postView.addItemDecoration(new DividerItemDecoration(this,
+                LinearLayoutManager.VERTICAL));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         THIS_IP_ADDRESS = getLocalIpAddress();
 
         startServer.setEnabled(false);
+
+        network = new Network(THIS_IP_ADDRESS);
 
     }
 
@@ -135,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network.getPostList().get(0).addLike("TestBruger");
 
                 startServer.setText("Stop Server");
-                postView.setAdapter(new CustomAdapter(this, network.getPostList(), user));
+                postView.setAdapter(new CustomAdapter(this, network, user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
                         LinearLayoutManager.VERTICAL));
 
@@ -155,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network = new Network(THIS_IP_ADDRESS);
                 startServer.setText("Start server");
                 serverThread = new Thread(new MyServerThread());
-                postView.setAdapter(new CustomAdapter(this, network.getPostList(), user));
+                postView.setAdapter(new CustomAdapter(this, network, user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
                         LinearLayoutManager.VERTICAL));
             }
@@ -173,6 +208,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else if (!ip_submitted) {
                 ip_submitted = true;
                 REMOTE_IP_ADDRESS = ipInputField.getText().toString();
+
+                network = new Network(REMOTE_IP_ADDRESS);
 
                 ipInputField.setText(REMOTE_IP_ADDRESS);
                 ipInputField.setEnabled(false);
@@ -281,14 +318,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 response = "peer added";
                                 status = "200 ok";
                             }else if(input.method.equalsIgnoreCase("getdata")){
-                                String out = network.getPostList().toString();
+                                String out = network.getPostListString();
                                 System.out.println(out);
                                 response = out;
                                 status = "200 ok";
-                            }else if(input.method.equalsIgnoreCase("comment")){
-                                //logic for comment
-                            }else if(input.method.equalsIgnoreCase("like")){
-                                //logic for like/unlike
+                            }else if(input.method.equalsIgnoreCase("newdata")){
+                                network.setPostList(network.getPostListFromString(input.body));
+                                System.out.println(network.getPostList());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updatePosts();
+                                    }
+                                });
+                            }else if(input.method.equalsIgnoreCase("leavenetwork")){
+                                String peerIp = client.getRemoteSocketAddress().toString();
+                                network.removePeer(peerIp.substring(1, peerIp.length()-6), input.body);
                             } else {
                                 status = "400 bad rec";
                                 response = "Fail";
@@ -337,7 +382,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     outClientStream.flush();
                     messageFromServer = inClientStream.readUTF();
                     Response response = HandleApi.readHttpResponse(messageFromServer);
-                    waitABit();
+
+                    if(HandleApi.readHttpRequest(command).method.equalsIgnoreCase("getdata")){
+                        System.out.println(response.body);
+                        network.setPostList(network.getPostListFromString(response.body));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updatePosts();
+                            }
+                        });
+                    }
+
                     connectionToServer.shutdownInput();
                     connectionToServer.shutdownOutput();
                     connectionToServer.close();

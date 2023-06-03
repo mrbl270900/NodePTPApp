@@ -21,13 +21,14 @@ import java.util.List;
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHolder> {
 
     private Context context;
-    private List<Post> Data;
-
+    private Network Data;
+    private List<Post> postList;
     private User user;
 
-    public CustomAdapter (Context context, List<Post> data, User user) {
+    public CustomAdapter (Context context, Network data, User user) {
         this.context = context;
         this.Data = data;
+        postList = data.getPostList();
         this.user = user;
     }
 
@@ -43,7 +44,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
 
     @Override
     public void onBindViewHolder(@NonNull CustomAdapter.CustomHolder holder, int position) {
-        Post post = Data.get(position);
+        Post post = postList.get(position);
 
         holder.postSubjekt.setText(post.getContens());
         holder.postContens.setText(post.getSubject() + "\n Likes: " + post.getLikeList().size());
@@ -80,14 +81,17 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
                         if (!post.getLikeList().contains(user.getUsername())) {
                             post.addLike(user.getUsername());
                             holder.like.setText("Unlike");
-                            Data.set(post.getId(), post);
+                            postList.set(post.getId(), post);
                             notifyItemChanged(holder.getAdapterPosition(), 1);
                         } else {
                             post.removeLike(user.getUsername());
                             holder.like.setText("Like");
-                            Data.set(post.getId(), post);
+                            postList.set(post.getId(), post);
                             notifyItemChanged(holder.getAdapterPosition(), 1);
                         }
+
+                        MainActivity.runClientCommand(HandleApi.createHttpRequest("newData",
+                                Data.getPostListString()), Data.networkCode);
                     }
                 }
             });
@@ -98,17 +102,20 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomHold
                     if (view == holder.comment) {
                         String input = holder.commentInput.getText().toString();
                         post.addComment(user.getUsername(), input);
-                        Data.set(post.getId(), post);
+                        postList.set(post.getId(), post);
                         System.out.println(input + holder.getAdapterPosition());
                         notifyItemChanged(holder.getAdapterPosition(), 1);
                     }
+
+                    MainActivity.runClientCommand(HandleApi.createHttpRequest("newData",
+                            Data.getPostListString()), Data.networkCode);
                 }
             });
     }
 
     @Override
     public int getItemCount() {
-        return Data.size();
+        return postList.size();
     }
     class CustomHolder extends RecyclerView.ViewHolder{
 
