@@ -33,7 +33,7 @@ import java.nio.ByteOrder;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     int clientNumber = 0;
     // UI-elements
-    private Button startServer, submitIP;
+    private Button startServer, submitIP, addPost;
     private EditText ipInputField;
     private RecyclerView postView;
     private String THIS_IP_ADDRESS = "";
@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         submitIP = findViewById(R.id.sendclient);
         ipInputField = findViewById(R.id.clientmessagefield);
         postView = findViewById(R.id.recyclerView);
+        addPost = findViewById(R.id.AddPostButton);
 
         postView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -70,6 +71,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Setting click-listeners on buttons
         startServer.setOnClickListener(this);
         submitIP.setOnClickListener(this);
+        addPost.setOnClickListener(this);
+
+        addPost.setEnabled(false);
+        addPost.setVisibility(View.INVISIBLE);
 
         //Setting some UI state
         ipInputField.setHint("Input Username");
@@ -98,11 +103,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 System.out.println(command);
                 Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();
+
+                ipInputField.setText("");
+                ipInputField.setEnabled(true);
             }
             else if (!serverStarted) {
                 serverStarted = true;
                 serverRunning = true;
                 serverThread.start();
+
+                addPost.setEnabled(true);
+                addPost.setVisibility(View.VISIBLE);
+
+                submitIP.setEnabled(false);
+                submitIP.setVisibility(View.INVISIBLE);
+
+                ipInputField.setText(THIS_IP_ADDRESS);
+                ipInputField.setEnabled(false);
+
 
                 //setteing up network and its test data
                 network = new Network(THIS_IP_ADDRESS);
@@ -122,6 +140,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         LinearLayoutManager.VERTICAL));
 
             } else {
+                submitIP.setEnabled(true);
+                submitIP.setVisibility(View.VISIBLE);
+
+                addPost.setEnabled(false);
+                addPost.setVisibility(View.INVISIBLE);
+
+                ipInputField.setText("");
+                ipInputField.setEnabled(true);
+
                 serverRunning = false;
                 serverStarted = false;
                 serverCarryOn = false;
@@ -146,6 +173,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else if (!ip_submitted) {
                 ip_submitted = true;
                 REMOTE_IP_ADDRESS = ipInputField.getText().toString();
+
+                ipInputField.setText(REMOTE_IP_ADDRESS);
+                ipInputField.setEnabled(false);
+
                 command = HandleApi.createHttpRequest("newpeer", user.getUsername());
                 System.out.println(command);
                 Thread clientThread = new Thread(new MyClientThread());
@@ -160,6 +191,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Thread clientThread = new Thread(new MyClientThread());
                 clientThread.start();
             }
+        } else if(view == addPost) {
+            //addpost logic
         }
     }//onclick
 
@@ -247,6 +280,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 network.addPeer(peerIp.substring(1, peerIp.length()-6), input.body);
                                 response = "peer added";
                                 status = "200 ok";
+                            }else if(input.method.equalsIgnoreCase("getdata")){
+                                String out = network.getPostList().toString();
+                                System.out.println(out);
+                                response = out;
+                                status = "200 ok";
+                            }else if(input.method.equalsIgnoreCase("comment")){
+                                //logic for comment
+                            }else if(input.method.equalsIgnoreCase("like")){
+                                //logic for like/unlike
                             } else {
                                 status = "400 bad rec";
                                 response = "Fail";
