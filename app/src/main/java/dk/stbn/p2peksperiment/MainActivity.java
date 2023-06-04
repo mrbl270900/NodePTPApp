@@ -168,18 +168,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ipInputField.setEnabled(false);
 
 
-                //setteing up network and its test data
+                //setting up network and its test data
                 network = new Network(THIS_IP_ADDRESS);
-                /*//test data if needed
-                network.addPost(new Post(user.getUsername(), "dette er et test post 1", network.getPostList().size(), "dette er noget inhold"));
-                network.addPost(new Post(user.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
-                network.addPost(new Post(user.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
-
-                network.getPostList().get(0).addComment("TestBruger", "god test commentar");
-                network.getPostList().get(0).addComment("TestBruger2", "god test commentar2");
-                network.getPostList().get(1).addComment("TestBruger", "god test commentar");
-                network.getPostList().get(0).addLike("TestBruger");
-                */
                 startServer.setText("Stop Server");
                 postView.setAdapter(new CustomAdapter(this, network, user));
                 postView.addItemDecoration(new DividerItemDecoration(this,
@@ -222,22 +212,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 network = new Network(REMOTE_IP_ADDRESS);
 
+                //testdata setup
+                network.addPost(new Post(user.getUsername(), "dette er et test post 1", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(user.getUsername(), "dette er et test post 2", network.getPostList().size(), "dette er noget inhold"));
+                network.addPost(new Post(user.getUsername(), "dette er et test post 3", network.getPostList().size(), "dette er noget inhold"));
+
+                network.getPostList().get(0).addComment("TestBruger", "god test commentar");
+                network.getPostList().get(0).addComment("TestBruger2", "god test commentar2");
+                network.getPostList().get(1).addComment("TestBruger", "god test commentar");
+                network.getPostList().get(0).addLike("TestBruger");
+
+
+
                 ipInputField.setText(REMOTE_IP_ADDRESS);
                 ipInputField.setEnabled(false);
 
                 command = HandleApi.createHttpRequest("newpeer", user.getUsername());
                 System.out.println(command);
-                Thread clientThread = new Thread(new MyClientThread());
-                clientThread.start();
+                //Thread clientThread = new Thread(new MyClientThread());
+                //clientThread.start();
                 submitIP.setText("Opdate data");
                 startServer.setText("End connection");
                 ipInputField.setEnabled(false);
                 ipInputField.setInputType(InputType.TYPE_NULL);
+                command = HandleApi.createHttpRequest("getdata", user.getUsername());
+                System.out.println(command);
+                //Thread clientThread = new Thread(new MyClientThread());
+                //clientThread.start();
             }else{
                 command = HandleApi.createHttpRequest("getdata", user.getUsername());
                 System.out.println(command);
-                Thread clientThread = new Thread(new MyClientThread());
-                clientThread.start();
+                //Thread clientThread = new Thread(new MyClientThread());
+                //clientThread.start();
             }
         } else if(view == addPost) {
             //addpost logic
