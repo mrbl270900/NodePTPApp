@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 network.getPostList().get(0).addComment("TestBruger2", "god test commentar2");
                 network.getPostList().get(1).addComment("TestBruger", "god test commentar");
                 network.getPostList().get(0).addLike("TestBruger");
-
+                System.out.println(network.getPostListString());
 
 
                 ipInputField.setText(REMOTE_IP_ADDRESS);
@@ -237,13 +237,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ipInputField.setInputType(InputType.TYPE_NULL);
                 command = HandleApi.createHttpRequest("getdata", user.getUsername());
                 System.out.println(command);
-                //Thread clientThread = new Thread(new MyClientThread());
-                //clientThread.start();
+                System.out.println(network.getPostListString());
+                updatePosts();
             }else{
                 command = HandleApi.createHttpRequest("getdata", user.getUsername());
                 System.out.println(command);
-                //Thread clientThread = new Thread(new MyClientThread());
-                //clientThread.start();
             }
         } else if(view == addPost) {
             //addpost logic
