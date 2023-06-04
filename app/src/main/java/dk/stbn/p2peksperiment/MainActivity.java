@@ -233,6 +233,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startServer.setText("End connection");
                 ipInputField.setEnabled(false);
                 ipInputField.setInputType(InputType.TYPE_NULL);
+                waitABit();
+                command = HandleApi.createHttpRequest("getdata", user.getUsername());
+                System.out.println(command);
+                Thread clientThreadGetData = new Thread(new MyClientThread());
+                clientThreadGetData.start();
             }else{
                 command = HandleApi.createHttpRequest("getdata", user.getUsername());
                 System.out.println(command);
