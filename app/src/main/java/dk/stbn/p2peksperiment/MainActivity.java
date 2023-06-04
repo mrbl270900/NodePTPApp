@@ -147,11 +147,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ip_submitted = false;
                 command = HandleApi.createHttpRequest("leaveNetwork", user.getUsername());
                 System.out.println(command);
-                Thread clientThread = new Thread(new MyClientThread());
-                clientThread.start();
 
                 ipInputField.setText("");
                 ipInputField.setEnabled(true);
+                network = new Network("");
+                updatePosts();
             }
             else if (!serverStarted) {
                 serverStarted = true;
